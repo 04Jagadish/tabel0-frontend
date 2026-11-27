@@ -18,4 +18,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --check index.js
+      - run: node --test scripts/access-agent.test.mjs
       - run: npm run build

@@ -14,6 +14,21 @@ The Worker verifies the Access token before serving any asset. Cloudflare Access
 
 [Google sign-in setup](https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/google/) · [Cloudflare Access for Workers](https://developers.cloudflare.com/workers/configuration/cloudflare-access/) · [Independent MFA setup](https://developers.cloudflare.com/cloudflare-one/access-controls/access-settings/independent-mfa/)
 
+## Cloudflare Access remediation agent
+
+Run this command from an operator workstation or restricted CI job. Supply `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` through the operator environment. Use an account-scoped token with Access application and policy read permission for planning. Switch to an authorized token with application policy write permission for applying. Obtain the Access application ID and an application-specific Allow policy ID from Cloudflare Zero Trust.
+
+```powershell
+npm.cmd run access:agent -- plan tabelo.in approved@example.com APP_UUID POLICY_UUID
+npm.cmd run access:agent -- apply tabelo.in approved@example.com APP_UUID POLICY_UUID APPROVAL_HASH
+```
+
+Review the proposed hostname, policy, and exact email with the access owner before passing the printed hash to `apply`. The agent checks the live configuration again before writing and reads the policy back afterward. Run policy changes one at a time because the API update replaces the policy configuration. The CLI emits JSON events for the operator or CI logs. Restrict access to these logs because they contain email addresses.
+
+This runbook extends an existing app-specific Allow policy with individual email Include rules. It preserves Require, Exclude, and MFA settings. If the address is already included, inspect policy order, the selected Google account, and the policy's other conditions in Zero Trust. After a verified policy update, retry sign-in in a private browser window to verify access with the intended Google account.
+
+[Cloudflare application policy API](https://developers.cloudflare.com/api/resources/zero_trust/subresources/access/subresources/applications/subresources/policies/methods/update/)
+
 ## React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

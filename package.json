@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "access:agent": "node scripts/access-agent.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
