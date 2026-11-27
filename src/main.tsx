@@ -7,7 +7,24 @@ import App from './App.tsx'
 const signInStatus = <main className="auth-page"><p role="status">Checking sign-in…</p></main>
 
 const router = createBrowserRouter([
-  { path: '/', Component: App },
+  {
+    hydrateFallbackElement: signInStatus,
+    shouldRevalidate: ({ currentUrl, nextUrl, defaultShouldRevalidate }) =>
+      currentUrl.pathname !== nextUrl.pathname || defaultShouldRevalidate,
+    lazy: async () => {
+      const [{ SignedInLayout }, { loadAccount }] = await Promise.all([
+        import('./auth/AuthPages'), import('./auth/loaders'),
+      ])
+      return { Component: SignedInLayout, loader: loadAccount }
+    },
+    children: [
+      { path: '/', Component: App },
+      {
+        path: '/dashboard',
+        lazy: async () => ({ Component: (await import('./auth/AuthPages')).DashboardPage }),
+      },
+    ],
+  },
   {
     path: '/login',
     hydrateFallbackElement: signInStatus,
@@ -18,16 +35,6 @@ const router = createBrowserRouter([
     element: signInStatus,
     hydrateFallbackElement: signInStatus,
     lazy: async () => ({ loader: (await import('./auth/loaders')).completeSignIn }),
-  },
-  {
-    path: '/dashboard',
-    hydrateFallbackElement: signInStatus,
-    lazy: async () => {
-      const [{ DashboardPage }, { loadAccount }] = await Promise.all([
-        import('./auth/AuthPages'), import('./auth/loaders'),
-      ])
-      return { Component: DashboardPage, loader: loadAccount }
-    },
   },
 ])
 

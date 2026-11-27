@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, useLoaderData, useNavigate, useRevalidator, useSearchParams } from 'react-router-dom'
+import { Link, Outlet, useLoaderData, useNavigate, useOutletContext, useRevalidator, useSearchParams } from 'react-router-dom'
+import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabaseClient'
 import type { loadAccount } from './loaders'
 
@@ -46,12 +47,10 @@ export function LoginPage() {
   )
 }
 
-export function DashboardPage() {
+export function SignedInLayout() {
   const { user } = useLoaderData<typeof loadAccount>()
   const navigate = useNavigate()
   const { revalidate, state } = useRevalidator()
-  const [pending, setPending] = useState(false)
-  const [error, setError] = useState('')
 
   useEffect(() => {
     const subscription = supabase?.auth.onAuthStateChange(event => {
@@ -59,6 +58,25 @@ export function DashboardPage() {
     }).data.subscription
     return () => subscription?.unsubscribe()
   }, [navigate])
+
+  if (user) return <Outlet context={user} />
+
+  return (
+    <main className="auth-page">
+      <section className="auth-card">
+        <h1>Could not verify your account</h1>
+        <button className="primary-button" onClick={revalidate} disabled={state === 'loading'}>
+          Try again
+        </button>
+      </section>
+    </main>
+  )
+}
+
+export function DashboardPage() {
+  const user = useOutletContext<User>()
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState('')
 
   async function signOut() {
     if (!supabase) return
@@ -80,21 +98,10 @@ export function DashboardPage() {
       <section className="auth-card">
         <Link to="/" className="logo">Tabelo<span>.</span></Link>
         <h1>Your account</h1>
-        {user ? (
-          <>
-            <p>{user.email}</p>
-            <button className="primary-button" onClick={signOut} disabled={pending}>
-              {pending ? 'Signing out…' : 'Sign out'}
-            </button>
-          </>
-        ) : (
-          <>
-            <p role="alert">Could not verify your account.</p>
-            <button className="primary-button" onClick={revalidate} disabled={state === 'loading'}>
-              Try again
-            </button>
-          </>
-        )}
+        <p>{user.email}</p>
+        <button className="primary-button" onClick={signOut} disabled={pending}>
+          {pending ? 'Signing out…' : 'Sign out'}
+        </button>
         {error && <p role="alert">{error}</p>}
       </section>
     </main>
