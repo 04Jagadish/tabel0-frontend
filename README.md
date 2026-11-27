@@ -1,5 +1,24 @@
 # Tabelo frontend
 
+## Supabase Google sign-in
+
+1. In [Google Auth Platform](https://console.cloud.google.com/auth/clients), create a **Web application** client. Add `http://localhost:5173` and `https://tabelo.in` under **Authorized JavaScript origins**. Add `https://dbucyfqexxurcmijeaqe.supabase.co/auth/v1/callback` under **Authorized redirect URIs**. For personal Google accounts use an **External** audience. If Google shows a test-user list for the app, add your test account there.
+2. In the [Supabase project](https://supabase.com/dashboard/project/dbucyfqexxurcmijeaqe), open **Authentication → Sign In / Providers → Google**. Enable Google and save the client ID and secret from step 1 in the dashboard.
+3. Under **Authentication → URL Configuration**, set **Site URL** to `https://tabelo.in`. Add `http://localhost:5173/auth/callback` and `https://tabelo.in/auth/callback` under **Redirect URLs**.
+4. Copy the project's **publishable** key from its **API Keys** settings. Put it in the ignored `.env.local` file at the repository root:
+
+   ```dotenv
+   VITE_SUPABASE_URL=https://dbucyfqexxurcmijeaqe.supabase.co
+   VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_REPLACE_ME
+   ```
+
+   Vite includes both values in the browser bundle. Keep the Google client secret and Supabase secret or service-role keys out of Vite configuration.
+5. Run `npm ci` and `npm run dev -- --strictPort`. Open `http://localhost:5173/login` and select **Continue with Google**. The app exchanges the callback code for a session and opens `/dashboard`. Check **Authentication → Users** in Supabase for the test account. To test the route guard, sign out and open `/dashboard` directly.
+
+For production, supply both Vite variables at build time. Cloudflare Access still controls entry to the production hostname and runs before the React app. Verify the new flow locally before changing production Access settings. The account route verifies the signed-in user through Supabase Auth. Enforce customer, restaurant-owner, and admin permissions in the backend and with Supabase Row Level Security before exposing protected data.
+
+[Supabase Google setup](https://supabase.com/docs/guides/auth/social-sign-in/auth-google) · [Supabase redirect URL configuration](https://supabase.com/docs/guides/auth/redirect-urls)
+
 ## Private Cloudflare deployment
 
 1. In Google Cloud, create a **Web application** OAuth client. Set its authorized JavaScript origin to `https://<team-name>.cloudflareaccess.com` and its authorized redirect URI to `https://<team-name>.cloudflareaccess.com/cdn-cgi/access/callback`. Use the **External** audience for personal Gmail accounts.

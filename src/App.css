@@ -61,6 +61,28 @@ a { text-decoration: none; color: inherit; }
   font-weight: 700;
 }
 
+.auth-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: #fff3e8;
+}
+
+.auth-card {
+  width: min(100%, 440px);
+  padding: clamp(24px, 6vw, 40px);
+  border: 1px solid #e8d8ca;
+  border-radius: 18px;
+  background: white;
+  overflow-wrap: anywhere;
+}
+
+.auth-card .logo { display: inline-block; }
+.auth-card .primary-button { border: 0; }
+.auth-card .primary-button:disabled { cursor: default; opacity: 0.65; }
+.auth-card [role="alert"] { color: #a32917; }
+
 .menu-section, .cart-section, .about-section { padding: 65px 7%; }
 .section-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
 h2 { font-size: 32px; margin: 12px 0 25px; }

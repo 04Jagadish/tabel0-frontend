@@ -1,6 +1,7 @@
 
 import { useMemo, useState } from 'react'
 import { Search, ShoppingCart, Plus, Minus, UtensilsCrossed } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import './App.css'
 
 type Food = {
@@ -57,6 +58,7 @@ export default function App() {
         <nav>
           <a href="#menu">Explore Menu</a>
           <a href="#about">About</a>
+          <Link to="/dashboard">Account</Link>
         </nav>
         <a className="cart-link" href="#cart">
           <ShoppingCart size={20} /> Cart ({cartCount})
